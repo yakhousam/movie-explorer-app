@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Wrapper from "./Wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Wrapper>{children}</Wrapper>
+        <footer className="mt-auto pt-12 pb-6 text-center text-gray-400">
+          <p className="text-sm">
+            Built with{" "}
+            <span className="animate-pulse text-red-600 mx-1">❤</span> by{" "}
+            <a
+              href="https://github.com/yakhousam"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-red-600 transition-colors duration-200 font-medium"
+            >
+              khoudir
+            </a>
+          </p>
+        </footer>
       </body>
     </html>
   );
