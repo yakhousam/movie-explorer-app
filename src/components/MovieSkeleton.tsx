@@ -1,4 +1,3 @@
-"use client";
 export const MovieSkeleton = () => (
   <div className="relative aspect-[2/3] bg-gray-800 rounded animate-pulse">
     <div className="absolute bottom-0 w-full p-4 space-y-2">

@@ -2,6 +2,7 @@
 
 import clientPromise from "@/lib/mongodb";
 import OpenAI from "openai";
+
 import { paginatedResponseSchema } from "./schemas";
 
 const DB_NAME = "moviedb";
@@ -9,25 +10,49 @@ const COLLECTION_NAME = "movies";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const prompt = `You are a smart movie search assistant that rewrites user queries to be more detailed, semantically meaningful, and optimized for a movie search engine. 
+
+- Expand vague queries with relevant details.
+- Infer missing context based on common movie preferences.
+- Ensure the query remains natural and useful for retrieval.
+- Format the output as a **single enhanced query**, without additional commentary.
+
+### Examples:
+User Query: "action movie"
+Enhanced Query: "Find popular action movies with intense fight scenes, thrilling chases, and high-stakes adventures."
+
+User Query: "sci-fi movie"
+Enhanced Query: "Show me top-rated sci-fi movies featuring futuristic technology, space exploration, or artificial intelligence themes."
+
+User Query: "Tom Cruise"
+Enhanced Query: "List blockbuster movies starring Tom Cruise, including action thrillers, spy films, and iconic Hollywood performances."
+
+User Query: "best horror movies"
+Enhanced Query: "Find the best horror movies with high IMDb ratings, terrifying storylines, and chilling suspense."
+
+User Query: "romantic movie 2023"
+Enhanced Query: "Show me the most popular romantic movies released in 2023, including heartfelt love stories and critically acclaimed performances."
+`;
+
 export async function enhanceQuery(query: string) {
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content:
-          "Translate to english and rephrase the user query for a movie search while keeping all essential details. Ensure actors, genres, and themes remain unchanged, making it suitable for semantic vector search. Keep it concise but precise.",
+        content: prompt,
       },
       { role: "user", content: query },
     ],
     max_tokens: 50,
-    temperature: 0.4, // Lower randomness for accuracy
+    temperature: 0.7, // Lower randomness for accuracy
   });
-
+  console.log(response);
   const messageContent = response.choices?.[0]?.message?.content?.trim();
   if (!messageContent) {
     throw new Error("Failed to get a valid response from OpenAI.");
   }
+
   return messageContent;
 }
 
@@ -79,6 +104,7 @@ export async function searchMovies({
           index: "vector_index",
           path: "embedding",
           queryVector: queryVector,
+          filter: yearFilter,
           exact: true,
           // numCandidates: 500,
           limit: 100,
@@ -95,9 +121,6 @@ export async function searchMovies({
             $gte: ["$score", 0.6],
           },
         },
-      },
-      {
-        $match: yearFilter,
       },
       {
         $match: genreFilter,

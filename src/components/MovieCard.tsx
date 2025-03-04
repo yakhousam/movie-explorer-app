@@ -16,9 +16,10 @@ export const MovieCard = ({ movie }: { movie: Movie }) => {
         <Image
           src={movie.image || PLACEHOLDER_IMAGE}
           alt={movie.title}
-          fill
           className="object-cover rounded"
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+          fill
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="absolute top-0 p-4 w-full h-full flex flex-col bg-gradient-to-b from-black/90 to-transparent">

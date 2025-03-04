@@ -1,3 +1,6 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 // Example searches to help users get started
 const EXAMPLE_SEARCHES = [
   "Sci-fi movies with time travel",
@@ -8,11 +11,11 @@ const EXAMPLE_SEARCHES = [
   "Mind-bending psychological thrillers",
 ];
 
-type SearchExamplesProps = {
-  handleClick: (query: string) => void;
-};
-
-export const SearchExamples = ({ handleClick }: SearchExamplesProps) => {
+export const SearchExamples = () => {
+  const router = useRouter();
+  const handleClick = (example: string) => {
+    router.push(`/?query=${example}`);
+  };
   return (
     <div className="text-center space-y-6">
       <div className="max-w-2xl mx-auto">
