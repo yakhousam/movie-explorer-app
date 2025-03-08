@@ -27,7 +27,7 @@ export const JumpToTopBtn = () => {
     showScrollTop && (
       <button
         onClick={scrollToTop}
-        className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-50 transform hover:scale-110"
+        className="fixed bottom-8 right-8 z-50 flex h-12 w-12 transform items-center justify-center rounded-full bg-red-600 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-red-700"
         aria-label="Scroll to top"
       >
         <svg

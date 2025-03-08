@@ -1,21 +1,5 @@
 import { z } from "zod";
 
-/**
- * export type Movie = {
-  title: string;
-  extract: string;
-  image: string;
-  url: string;
-  href: string;
-  embedding: number[];
-  year: number;
-  cast: string[];
-  crew: { role: string; name: string }[];
-  production: string;
-  genres: string[];
-};
- */
-
 export const movieSchema = z.object({
   _id: z.instanceof(Object).transform((id) => id.toString()),
   title: z.string(),

@@ -34,7 +34,7 @@ User Query: "romantic movie 2023"
 Enhanced Query: "Show me the most popular romantic movies released in 2023, including heartfelt love stories and critically acclaimed performances."
 `;
 
-export async function enhanceQuery(query: string) {
+async function enhanceQuery(query: string) {
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -47,7 +47,6 @@ export async function enhanceQuery(query: string) {
     max_tokens: 50,
     temperature: 0.7, // Lower randomness for accuracy
   });
-  console.log(response);
   const messageContent = response.choices?.[0]?.message?.content?.trim();
   if (!messageContent) {
     throw new Error("Failed to get a valid response from OpenAI.");
@@ -65,35 +64,22 @@ async function generateEmbedding(text: string) {
 }
 
 export async function searchMovies({
-  queryText,
-  yearFrom,
-  yearTo,
-  genres = [],
+  query,
+  enhanceSearch = false,
   page = 1,
   limit = 20,
 }: {
-  queryText: string;
-  yearFrom?: number;
-  yearTo?: number;
-  genres?: string[];
+  query: string;
+  enhanceSearch?: boolean;
   page?: number;
   limit?: number;
 }) {
+  const queryText = enhanceSearch ? await enhanceQuery(query) : query;
+  console.log("Query:", queryText);
   const queryVector = await generateEmbedding(queryText);
   const client = await clientPromise;
   const db = client.db(DB_NAME);
   const moviesCollection = db.collection(COLLECTION_NAME);
-
-  // Build year filter
-  const yearFilter: Record<string, { $gte?: number; $lte?: number }> = {};
-  if (yearFrom) yearFilter.year = { ...yearFilter.year, $gte: yearFrom };
-  if (yearTo) yearFilter.year = { ...yearFilter.year, $lte: yearTo };
-
-  // Build genre filter
-  const genreFilter: Record<string, { $in: string[] }> = {};
-  if (genres && genres.length > 0) {
-    genreFilter.genres = { $in: genres };
-  }
 
   const skip = page * limit;
 
@@ -104,7 +90,6 @@ export async function searchMovies({
           index: "vector_index",
           path: "embedding",
           queryVector: queryVector,
-          filter: yearFilter,
           exact: true,
           // numCandidates: 500,
           limit: 100,
@@ -122,9 +107,7 @@ export async function searchMovies({
           },
         },
       },
-      {
-        $match: genreFilter,
-      },
+
       {
         $facet: {
           movies: [

@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
-const Wrapper = ({ children }: { children: React.ReactNode }) => {
+const ReactQueryWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <>
@@ -15,4 +15,4 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default Wrapper;
+export default ReactQueryWrapper;

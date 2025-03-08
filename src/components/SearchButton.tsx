@@ -14,9 +14,7 @@ export const SearchButton = ({
     <button
       type="submit"
       disabled={isLoading}
-      className={`bg-red-600 px-8 py-2 rounded transition flex items-center justify-center
-              min-w-[100px] min-h-[40px] relative
-              ${isLoading ? "opacity-80" : "hover:bg-red-700"}`}
+      className={`relative flex min-h-[40px] min-w-[100px] items-center justify-center rounded bg-red-600 px-8 py-2 transition ${isLoading ? "opacity-80" : "hover:bg-red-700"}`}
       {...delegated}
     >
       {isLoading && (

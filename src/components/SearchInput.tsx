@@ -1,5 +1,6 @@
 "use client";
 import { ComponentProps, useState } from "react";
+import { XButton } from "./XButton";
 
 type SearchInputProps = {
   error?: { status: boolean; message?: string };
@@ -11,7 +12,7 @@ export const SearchInput = ({
   value,
   error = { status: false },
   handleClearError = () => {},
-  ...delegated
+  ...props
 }: SearchInputProps) => {
   const [inputValue, setInputValue] = useState(value || "");
 
@@ -28,8 +29,14 @@ export const SearchInput = ({
   return (
     <div className="relative">
       {error.status && (
-        <div className="absolute -top-8 left-0  bg-red-600 text-white text-sm py-1 px-2 rounded z-10">
-          {error.message || "Error"}
+        <div className="absolute -top-8 left-0 z-10 flex items-center rounded bg-red-600 px-2 py-1 text-sm text-white">
+          <span>{error.message || "Error"}</span>
+          <XButton
+            size="small"
+            onClick={handleClearError}
+            className="ml-2 text-white"
+            aria-label="Close error message"
+          />
         </div>
       )}
       <input
@@ -38,31 +45,18 @@ export const SearchInput = ({
         value={inputValue}
         onChange={handleChange}
         placeholder="Search movies..."
-        className="w-full bg-[#333333] pl-4 pr-8 py-2 rounded text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-        {...delegated}
+        className="w-full rounded bg-[#333333] py-2 pl-4 pr-8 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+        autoFocus
+        {...props}
       />
       {inputValue && (
-        <button
-          type="button"
-          onClick={handleClear}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
-          aria-label="Clear search"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center">
+          <XButton
+            onClick={handleClear}
+            className="text-gray-400 hover:text-white"
+            aria-label="Clear search"
+          />
+        </div>
       )}
     </div>
   );

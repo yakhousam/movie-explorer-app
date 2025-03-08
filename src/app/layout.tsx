@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Wrapper from "./Wrapper";
+import ReactQueryWrapper from "./ReactQueryWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,18 +26,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} flex h-screen flex-col antialiased`}
       >
-        <Wrapper>{children}</Wrapper>
-        <footer className="mt-auto pt-12 pb-6 text-center text-gray-400">
+        <ReactQueryWrapper>{children}</ReactQueryWrapper>
+        <footer className="mt-auto pb-6 pt-6 text-center text-gray-400">
           <p className="text-sm">
             Built with{" "}
-            <span className="animate-pulse text-red-600 mx-1">❤</span> by{" "}
+            <span className="mx-1 animate-pulse text-red-600">❤</span> by{" "}
             <a
               href="https://github.com/yakhousam"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-red-600 transition-colors duration-200 font-medium"
+              className="font-medium text-white transition-colors duration-200 hover:text-red-600"
             >
               khoudir
             </a>

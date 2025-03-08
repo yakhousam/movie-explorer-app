@@ -1,12 +1,10 @@
 "use client";
-import { enhanceQuery } from "@/app/actions";
-import { POPULAR_GENRES } from "@/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Generes } from "./Generes";
 import { SearchButton } from "./SearchButton";
 import { SearchInput } from "./SearchInput";
-import { YearInput } from "./YearInput";
+import { CheckIcon } from "./icons/CheckIcon";
+import { InfoTooltip } from "./InfoTooltip";
 
 type SearchFormProp = {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -14,8 +12,6 @@ type SearchFormProp = {
 
 export const SearchForm = ({ searchParams }: SearchFormProp) => {
   const router = useRouter();
-  const [useEnhancedSearch, setUseEnhancedSearch] = useState(false);
-  const [endhancedText, setEnhancedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ status: boolean; message?: string }>({
     status: false,
@@ -27,6 +23,7 @@ export const SearchForm = ({ searchParams }: SearchFormProp) => {
       const formData = new FormData(event.currentTarget);
 
       const query = formData.get("query") as string;
+      const enhanceSearch = formData.get("enhance-search") === "on";
       if (!query || query.trim().length < 2) {
         setError({
           status: true,
@@ -34,30 +31,11 @@ export const SearchForm = ({ searchParams }: SearchFormProp) => {
         });
         return;
       }
-      const genres: string[] = [];
-      const data = Object.fromEntries(formData.entries());
 
       const searchParams = new URLSearchParams();
-
-      for (const [name, value] of Object.entries(data)) {
-        if (POPULAR_GENRES.includes(name as string)) {
-          genres.push(name as string);
-        } else if (
-          name === "query" &&
-          useEnhancedSearch &&
-          query !== endhancedText
-        ) {
-          setIsLoading(true);
-          const enhanced = await enhanceQuery(value as string);
-          searchParams.set(name, enhanced);
-          setEnhancedText(enhanced);
-          setIsLoading(false);
-        } else if (value) {
-          searchParams.set(name, value as string);
-        }
-      }
-      if (genres.length > 0) {
-        searchParams.set("genre", genres.join(","));
+      searchParams.set("query", query);
+      if (enhanceSearch) {
+        searchParams.set("enhance-search", "true");
       }
 
       router.push("?" + searchParams.toString());
@@ -67,11 +45,12 @@ export const SearchForm = ({ searchParams }: SearchFormProp) => {
       setIsLoading(false);
     }
   };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mb-4">
+    <form onSubmit={handleSubmit} className="mb-4 space-y-4">
       <div className="space-y-2">
         <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="min-w-[200px] flex-1">
             <SearchInput
               key={searchParams.query?.toString() || ""}
               name="query"
@@ -80,35 +59,30 @@ export const SearchForm = ({ searchParams }: SearchFormProp) => {
               handleClearError={() => setError({ status: false, message: "" })}
             />
           </div>
-          <div className="w-32">
-            <YearInput name="yearFrom" value={searchParams.yearFrom} />
-          </div>
-          <div className="w-32">
-            <YearInput
-              name="yearTo"
-              value={searchParams.yearTo}
-              placeholder="Year To"
-            />
-          </div>
+
           <SearchButton isLoading={isLoading} />
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-300">
-          <input
-            type="checkbox"
-            id="enhancedSearch"
-            className="rounded border-gray-400 text-red-600 focus:ring-red-600"
-            checked={useEnhancedSearch}
-            onChange={(e) => setUseEnhancedSearch(e.target.checked)}
-          />
-          <label htmlFor="enhancedSearch">
-            Use AI-enhanced search (improves search accuracy)
-          </label>
-        </div>
-
-        <div className="mt-3">
-          <p className="text-sm text-gray-300 mb-2">Filter by genre:</p>
-          <Generes genres={(searchParams.genre || []) as string[]} />
+        <div className="flex items-center gap-2 py-1">
+          <div className="relative flex items-center">
+            <input
+              id="enhanceSearch"
+              type="checkbox"
+              className="peer h-4 w-4 cursor-pointer appearance-none rounded-sm border border-gray-400 bg-transparent checked:border-red-600 checked:bg-red-600 hover:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-600/25"
+              name="enhance-search"
+              defaultChecked
+            />
+            <CheckIcon className="pointer-events-none absolute left-[2px] h-3 w-3 text-white opacity-0 peer-checked:opacity-100" />
+          </div>
+          <div className="relative">
+            <label
+              htmlFor="enhanceSearch"
+              className="flex cursor-pointer items-center text-xs text-gray-300 transition-colors hover:text-gray-100"
+            >
+              <span className="flex-shrink-0">Enhance search query</span>
+              <InfoTooltip content="Uses AI to improve search results by understanding context and finding related content" />
+            </label>
+          </div>
         </div>
       </div>
     </form>

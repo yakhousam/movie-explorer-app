@@ -6,26 +6,15 @@ import { SearchExamples } from "@/components/SearchExamples";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import useOnScreen from "../hooks/useOnScreen";
 import { searchMovies } from "./actions";
 import { Movie } from "./schemas";
 
 export const MoviesContainer = () => {
   const searchParams = useSearchParams();
-
   const query = searchParams.get("query") || "";
-  const yearFrom = searchParams.get("yearFrom") || "";
-  const yearTo = searchParams.get("yearTo") || "";
-  const selectedGenres = searchParams.getAll("genre") || [];
+  const enhanceSearch = searchParams.get("enhance-search") === "true";
 
-  const queryKey = [
-    "movies",
-    decodeURIComponent(query),
-    yearFrom,
-    yearTo,
-    ...selectedGenres,
-  ];
-  console.log("queryKey", queryKey);
+  const queryKey = ["movies", query, enhanceSearch];
 
   const {
     data,
@@ -39,10 +28,8 @@ export const MoviesContainer = () => {
     queryKey,
     queryFn: ({ pageParam = 0 }) =>
       searchMovies({
-        queryText: query,
-        yearFrom: parseInt(yearFrom),
-        yearTo: parseInt(yearTo),
-        genres: selectedGenres,
+        query,
+        enhanceSearch,
         page: pageParam,
         limit: 20,
       }),
@@ -55,39 +42,54 @@ export const MoviesContainer = () => {
 
   const targetRef = useRef<HTMLDivElement>(null);
 
-  const { isIntersecting } = useOnScreen(targetRef, {
-    rootMargin: "200px",
-  });
-
   useEffect(() => {
-    if (isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+    const currentTarget = targetRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (currentTarget) {
+      observer.observe(currentTarget);
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isIntersecting]);
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   return (
-    <div className="max-w-6xl mx-auto w-full flex-1">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div className="mx-auto w-full max-w-6xl flex-1">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {isFetching && !isFetchingNextPage
-          ? Array(20)
+          ? Array(10)
               .fill(0)
               .map((_, index) => (
                 <div key={index}>
                   <MovieSkeleton />
                 </div>
               ))
-          : data?.pages?.map(({ movies }) =>
-              movies.map((movie: Movie) => (
-                <MovieCard key={movie._id} movie={movie} />
-              ))
+          : data?.pages?.map(({ movies }, parentIdx) =>
+              movies.map((movie: Movie, idx) => (
+                <MovieCard
+                  key={movie._id}
+                  movie={movie}
+                  priority={parentIdx === 0 && idx <= 10}
+                />
+              )),
             )}
         {(isFetchingNextPage || hasNextPage) && (
           <div
             ref={targetRef}
             className="col-span-full flex justify-center py-4"
           >
-            <div className="col-span-full flex justify-center py-4">
-              <LoadingIndicator />
-            </div>
+            <LoadingIndicator />
           </div>
         )}
       </div>
@@ -97,13 +99,13 @@ export const MoviesContainer = () => {
         </div>
       )}
       {error && (
-        <div className="text-center mt-8 space-y-4">
+        <div className="mt-8 space-y-4 text-center">
           <p className="text-red-600">
             An error occurred while fetching movies.
           </p>
           <button
             onClick={() => refetch()}
-            className="bg-red-600 px-6 py-2 rounded hover:bg-red-700 transition"
+            className="rounded bg-red-600 px-6 py-2 transition hover:bg-red-700"
           >
             Try Again
           </button>
