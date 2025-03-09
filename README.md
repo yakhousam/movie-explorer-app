@@ -33,8 +33,8 @@ This is a modern web application for searching and discovering movies using sema
 1. Clone the repository
 
    ```bash
-   git clone https://your-repository-url/movies-frontend.git
-   cd movies-frontend
+   git clone https://github.com/yakhousam/movie-explorer-app.git
+   cd movie-explorer-app
    ```
 
 2. Install dependencies
