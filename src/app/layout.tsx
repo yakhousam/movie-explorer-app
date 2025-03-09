@@ -34,7 +34,7 @@ export default function RootLayout({
             Built with{" "}
             <span className="mx-1 animate-pulse text-red-600">❤</span> by{" "}
             <a
-              href="https://github.com/yakhousam"
+              href="https://github.com/yakhousam/movie-explorer-app"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-white transition-colors duration-200 hover:text-red-600"
