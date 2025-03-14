@@ -83,6 +83,12 @@ The semantic search functionality is powered by MongoDB Atlas Vector Search in c
 
 You can access the live version of this application at [cinema.khoudiryaya.dev](https://cinema.khoudiryaya.dev).
 
+## Video Demonstration
+
+Watch a demonstration of how this app works on YouTube:
+
+[![CineMind App Demo](https://img.youtube.com/vi/sUhDmKFjcV0/maxresdefault.jpg)](https://youtu.be/sUhDmKFjcV0)
+
 ## Database Creation
 
 The movie database was created through a data pipeline process:
